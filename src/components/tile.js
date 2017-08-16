@@ -1,13 +1,7 @@
 const PIXI = require('pixi.js');
 
-const numberToSize = {
-  1: 'width',
-  2: 'height',
-};
-
 export default function tile({ texture, size, app }) {
   let animate = false;
-  const tileRevealSize = numberToSize[Math.round((Math.random() * 1) + 1)];
   const tileContainer = new PIXI.Container();
 
   tileContainer.interactive = true;
@@ -35,9 +29,9 @@ export default function tile({ texture, size, app }) {
   });
 
   app.ticker.add(() => {
-    if (animate && textureOverlay[tileRevealSize] > 0) {
-      const newSize = textureOverlay[tileRevealSize] - 10;
-      textureOverlay[tileRevealSize] = newSize;
+    if (animate && textureOverlay.height > 0) {
+      const newSize = textureOverlay.height - 10;
+      textureOverlay.height = newSize;
     }
   });
 

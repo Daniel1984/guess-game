@@ -1,0 +1,14 @@
+{
+  "plugins": [
+    ["transform-imports", {
+      "lodash": {
+        "transform": "lodash/${member}",
+        "preventFullImport": true
+      },
+      "lodash/fp": {
+        "transform": "lodash/fp/${member}",
+        "preventFullImport": true
+      }
+    }]
+  ]
+}
