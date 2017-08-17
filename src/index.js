@@ -15,14 +15,15 @@ const TOTAL_GAPS_HEIGHT = TILE_GAP * (GRID_HEIGHT - 1);
 const STAGE_WIDTH = (GRID_WIDTH * TILE_SIZE) + TOTAL_GAPS_WIDTH;
 const STAGE_HEIGHT = (GRID_HEIGHT * TILE_SIZE) + TOTAL_GAPS_HEIGHT;
 
-const app = new Pixi.Application(STAGE_WIDTH, STAGE_HEIGHT, { backgroundColor: 0xffffff });
+const app = new Pixi.Application(STAGE_WIDTH, STAGE_HEIGHT, { backgroundColor: 0xff7f00 });
 document.querySelector('.hostmaker-guess').appendChild(app.view);
 
 function getPairedTiles(inputNames = [], outputNames = []) {
-  const tileIndex = Math.floor((Math.random() * inputNames.length) + 1);
-  const texture = inputNames.splice(tileIndex, 1);
+  const tileIndex = Math.floor(Math.random() * inputNames.length);
+  const textureName = inputNames.splice(tileIndex, 1);
+  const texture = { name: textureName[0], revealed: false };
 
-  outputNames = outputNames.concat([...texture, ...texture]);
+  outputNames = [...outputNames, { ...texture, num: 1 }, { ...texture, num: 2 }];
 
   if (outputNames.length < MAX_TILE_COUNT) {
     return getPairedTiles(inputNames, outputNames);
@@ -31,21 +32,27 @@ function getPairedTiles(inputNames = [], outputNames = []) {
   return outputNames;
 }
 
-function splitIntoRows(tiles, rowsWithTiles = []) {
+function splitTileListIntoRows(tiles, rowsWithTiles = []) {
   rowsWithTiles.push(tiles.splice(0, 6));
-  return tiles.length ? splitIntoRows(tiles, rowsWithTiles) : rowsWithTiles;
+  return tiles.length ? splitTileListIntoRows(tiles, rowsWithTiles) : rowsWithTiles;
 }
 
 assetManager(Pixi.loader).load((loader, resources) => {
   const tileRows = flow(
     getPairedTiles,
     shuffle,
-    splitIntoRows
+    splitTileListIntoRows
   )(Object.keys(resources));
 
   tileRows.forEach((row, i) => {
-    row.forEach((col, j) => {
-      const tileWithTexture = tile({ texture: resources[col].texture, size: TILE_SIZE, app });
+    row.forEach(({ name, revealed }, j) => {
+      const tileWithTexture = tile({
+        texture: resources[name].texture,
+        size: TILE_SIZE,
+        revealed,
+        app,
+      });
+
       tileWithTexture.x = ((j % GRID_WIDTH) * TILE_SIZE) + (TILE_GAP * j);
       tileWithTexture.y = ((i % GRID_HEIGHT) * TILE_SIZE) + (TILE_GAP * i);
       app.stage.addChild(tileWithTexture);

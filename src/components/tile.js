@@ -1,11 +1,15 @@
 const PIXI = require('pixi.js');
 
-export default function tile({ texture, size, app }) {
+export default function tile({ texture, size, app, revealed }) {
   let animate = false;
+  let hover = false;
   const tileContainer = new PIXI.Container();
 
-  tileContainer.interactive = true;
-  tileContainer.buttonMode = true;
+  if (!revealed) {
+    tileContainer.interactive = true;
+    tileContainer.buttonMode = true;
+  }
+
   tileContainer.width = size;
   tileContainer.height = size;
 
@@ -19,13 +23,21 @@ export default function tile({ texture, size, app }) {
 
   const textureOverlay = new PIXI.Graphics();
   textureOverlay.beginFill(0x57C5C6, 1);
-  textureOverlay.drawRect(0, 0, size, size);
+  textureOverlay.drawRect(0, 0, size, revealed ? 0 : size);
 
   tileContainer.addChild(textureSprite);
   tileContainer.addChild(textureOverlay);
 
   tileContainer.on('pointerdown', () => {
     animate = true;
+  });
+
+  tileContainer.on('pointerover', () => {
+    hover = true;
+  });
+
+  tileContainer.on('pointerout', () => {
+    hover = false;
   });
 
   app.ticker.add(() => {
