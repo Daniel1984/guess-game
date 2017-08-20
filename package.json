@@ -14,7 +14,8 @@
   },
   "dependencies": {
     "lodash": "^4.17.4",
-    "pixi.js": "^4.5.4"
+    "pixi.js": "^4.5.4",
+    "pubsub-js": "^1.5.7"
   },
   "devDependencies": {
     "autoprefixer": "^7.1.2",

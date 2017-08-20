@@ -21,7 +21,7 @@ document.querySelector('.hostmaker-guess').appendChild(app.view);
 function getPairedTiles(inputNames = [], outputNames = []) {
   const tileIndex = Math.floor(Math.random() * inputNames.length);
   const textureName = inputNames.splice(tileIndex, 1);
-  const texture = { name: textureName[0], revealed: false };
+  const texture = { name: textureName[0] };
 
   outputNames = [...outputNames, { ...texture, num: 1 }, { ...texture, num: 2 }];
 
@@ -45,16 +45,19 @@ assetManager(Pixi.loader).load((loader, resources) => {
   )(Object.keys(resources));
 
   tileRows.forEach((row, i) => {
-    row.forEach(({ name, revealed }, j) => {
+    row.forEach(({ name, num }, j) => {
       const tileWithTexture = tile({
         texture: resources[name].texture,
         size: TILE_SIZE,
-        revealed,
+        num,
+        name,
         app,
       });
 
-      tileWithTexture.x = ((j % GRID_WIDTH) * TILE_SIZE) + (TILE_GAP * j);
-      tileWithTexture.y = ((i % GRID_HEIGHT) * TILE_SIZE) + (TILE_GAP * i);
+      const getPosition = count => ((count % GRID_WIDTH) * TILE_SIZE) + (TILE_GAP * count);
+
+      tileWithTexture.x = getPosition(j);
+      tileWithTexture.y = getPosition(i);
       app.stage.addChild(tileWithTexture);
     });
   });
