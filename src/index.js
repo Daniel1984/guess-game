@@ -1,6 +1,7 @@
 import { shuffle, flow } from 'lodash/fp';
 import assetManager from './assetsManager';
 import tile from './components/tile';
+import intro from './components/intro';
 import './index.scss';
 
 const Pixi = require('pixi.js');
@@ -15,50 +16,77 @@ const TOTAL_GAPS_HEIGHT = TILE_GAP * (GRID_HEIGHT - 1);
 const STAGE_WIDTH = (GRID_WIDTH * TILE_SIZE) + TOTAL_GAPS_WIDTH;
 const STAGE_HEIGHT = (GRID_HEIGHT * TILE_SIZE) + TOTAL_GAPS_HEIGHT;
 
-const app = new Pixi.Application(STAGE_WIDTH, STAGE_HEIGHT, { backgroundColor: 0xff7f00 });
-document.querySelector('.hostmaker-guess').appendChild(app.view);
+window.WebFontConfig = {
+  google: {
+    families: ['Sigmar One'],
+  },
+  active() {
+    initGame();
+  },
+};
 
-function getPairedTiles(inputNames = [], outputNames = []) {
-  const tileIndex = Math.floor(Math.random() * inputNames.length);
-  const textureName = inputNames.splice(tileIndex, 1);
-  const texture = { name: textureName[0] };
+(() => {
+  const wf = document.createElement('script');
+  const protocol = document.location.protocol === 'https:' ? 'https' : 'http';
+  wf.src = `${protocol}://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js`;
+  wf.type = 'text/javascript';
+  wf.async = 'true';
+  const s = document.getElementsByTagName('script')[0];
+  s.parentNode.insertBefore(wf, s);
+})();
 
-  outputNames = [...outputNames, { ...texture, num: 1 }, { ...texture, num: 2 }];
+function initGame() {
+  const app = new Pixi.Application(STAGE_WIDTH, STAGE_HEIGHT, { backgroundColor: 0xff7f00 });
+  document.querySelector('.hostmaker-guess').appendChild(app.view);
 
-  if (outputNames.length < MAX_TILE_COUNT) {
-    return getPairedTiles(inputNames, outputNames);
+  function getPairedTiles(inputNames = [], outputNames = []) {
+    const tileIndex = Math.floor(Math.random() * inputNames.length);
+    const textureName = inputNames.splice(tileIndex, 1);
+    const texture = { name: textureName[0] };
+
+    outputNames = [...outputNames, { ...texture, num: 1 }, { ...texture, num: 2 }];
+
+    if (outputNames.length < MAX_TILE_COUNT) {
+      return getPairedTiles(inputNames, outputNames);
+    }
+
+    return outputNames;
   }
 
-  return outputNames;
-}
+  function splitTileListIntoRows(tiles, rowsWithTiles = []) {
+    rowsWithTiles.push(tiles.splice(0, 6));
+    return tiles.length ? splitTileListIntoRows(tiles, rowsWithTiles) : rowsWithTiles;
+  }
 
-function splitTileListIntoRows(tiles, rowsWithTiles = []) {
-  rowsWithTiles.push(tiles.splice(0, 6));
-  return tiles.length ? splitTileListIntoRows(tiles, rowsWithTiles) : rowsWithTiles;
-}
+  assetManager(Pixi.loader).load((loader, resources) => {
+    function startGame() {
+      const tileRows = flow(
+        getPairedTiles,
+        shuffle,
+        splitTileListIntoRows
+      )(Object.keys(resources));
 
-assetManager(Pixi.loader).load((loader, resources) => {
-  const tileRows = flow(
-    getPairedTiles,
-    shuffle,
-    splitTileListIntoRows
-  )(Object.keys(resources));
+      tileRows.forEach((row, i) => {
+        row.forEach(({ name, num }, j) => {
+          const tileWithTexture = tile({
+            texture: resources[name].texture,
+            size: TILE_SIZE,
+            num,
+            name,
+            app,
+          });
 
-  tileRows.forEach((row, i) => {
-    row.forEach(({ name, num }, j) => {
-      const tileWithTexture = tile({
-        texture: resources[name].texture,
-        size: TILE_SIZE,
-        num,
-        name,
-        app,
+          const getPosition = count => ((count % GRID_WIDTH) * TILE_SIZE) + (TILE_GAP * count);
+
+          tileWithTexture.x = getPosition(j);
+          tileWithTexture.y = getPosition(i);
+          app.stage.addChild(tileWithTexture);
+        });
       });
+    }
 
-      const getPosition = count => ((count % GRID_WIDTH) * TILE_SIZE) + (TILE_GAP * count);
+    const introComponents = intro({ app, startGame });
 
-      tileWithTexture.x = getPosition(j);
-      tileWithTexture.y = getPosition(i);
-      app.stage.addChild(tileWithTexture);
-    });
+    app.stage.addChild(introComponents);
   });
-});
+}
