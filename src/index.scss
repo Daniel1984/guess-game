@@ -2,7 +2,7 @@ html,
 body {
   margin: 0;
   padding: 0;
-  background-color: #ff7f00;
+  background-color: rgb(87, 197, 198);;
 }
 
 .hostmaker-guess {
@@ -11,7 +11,39 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
+  z-index: 10;
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+canvas {
+  background-color: transparent;
+  border: 10px solid #000;
+}
+
+.hostmakr-background {
+  display: flex;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  z-index: 0;
+}
+
+.hostmakr-background_left {
+  min-height: 0;
+  flex: 1;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-image: url('./assets/pjohns/baloons.svg');
+}
+
+.hostmakr-background_right {
+  min-height: 0;
+  flex: 1;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-image: url('./assets/pjohns/party.svg');
 }
