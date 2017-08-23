@@ -1,3 +1,4 @@
+import { physics, spring } from 'popmotion';
 import { shuffle, flow } from 'lodash/fp';
 import assetManager from './assetsManager';
 import tile from './components/tile';
@@ -58,6 +59,19 @@ function initGame() {
   }
 
   assetManager(Pixi.loader).load((loader, resources) => {
+    spring({
+      mass: 2,
+      stiffness: 1000,
+      damping: 30,
+      to: 1,
+      onUpdate(scale) {
+        app.view.style.transform = `scale(${scale})`;
+      },
+      onComplete() {
+        app.stage.addChild(intro({ app, startGame }));
+      },
+    }).start();
+
     function startGame() {
       const tileRows = flow(
         getPairedTiles,
@@ -79,13 +93,22 @@ function initGame() {
 
           tileWithTexture.x = getPosition(j);
           tileWithTexture.y = getPosition(i);
+          tileWithTexture.height = 0;
+
           app.stage.addChild(tileWithTexture);
+
+          physics({
+            from: 0,
+            to: TILE_SIZE,
+            velocity: 200,
+            spring: 400,
+            friction: 0.8,
+            onUpdate(height) {
+              tileWithTexture.height = height;
+            },
+          }).start();
         });
       });
     }
-
-    const introComponents = intro({ app, startGame });
-
-    app.stage.addChild(introComponents);
   });
 }

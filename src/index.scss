@@ -20,6 +20,7 @@ body {
 canvas {
   background-color: transparent;
   border: 10px solid #000;
+  transform: scale(0);
 }
 
 .hostmakr-background {
@@ -37,7 +38,7 @@ canvas {
   flex: 1;
   background-repeat: no-repeat;
   background-position: center;
-  background-image: url('./assets/pjohns/baloons.svg');
+  background-image: url('./assets/background/left.svg');
 }
 
 .hostmakr-background_right {
@@ -45,5 +46,5 @@ canvas {
   flex: 1;
   background-repeat: no-repeat;
   background-position: center;
-  background-image: url('./assets/pjohns/party.svg');
+  background-image: url('./assets/background/right.svg');
 }

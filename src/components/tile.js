@@ -1,3 +1,4 @@
+import { tween, spring, chain, delay } from 'popmotion';
 import pubsub from 'pubsub-js';
 import state from '../state';
 import { some } from 'lodash/fp';
@@ -7,11 +8,12 @@ const Pixi = require('pixi.js');
 const SET_STATE = 'tile:change';
 const CLEAR_STATE = 'clear:state';
 
-export default function tile({ texture, size, app, name, num }) {
-  let animate = false;
-  let disabled = false;
-
+export default function tile({ texture, size, name, num }) {
   const tileContainer = new Pixi.Container();
+  tileContainer.interactive = true;
+  tileContainer.buttonMode = true;
+  tileContainer.width = size;
+  tileContainer.height = size;
 
   pubsub.subscribe(CLEAR_STATE, (msg, { firstSelection, secondSelection }) => {
     state.splice(state.indexOf(firstSelection), 1);
@@ -19,19 +21,11 @@ export default function tile({ texture, size, app, name, num }) {
   });
 
   pubsub.subscribe(SET_STATE, (msg, tile) => {
-    if (disabled) {
-      return;
-    }
-
     if (!some(tile, state)) {
       state.push(tile);
     }
 
-    let timeoutRef;
-
     if (state.length % 2 === 0) {
-      clearTimeout(timeoutRef);
-
       tileContainer.interactive = false;
       tileContainer.buttonMode = false;
 
@@ -42,27 +36,19 @@ export default function tile({ texture, size, app, name, num }) {
       const secondTileMatch = secondSelection.name === name && secondSelection.num === num;
       const firstOrSecondTileMatch = fistTileMatch || secondTileMatch;
 
-      timeoutRef = setTimeout(() => {
-        tileContainer.interactive = true;
-        tileContainer.buttonMode = true;
+      tileContainer.interactive = true;
+      tileContainer.buttonMode = true;
 
-        if (differentTilesOpened && firstOrSecondTileMatch) {
-          pubsub.publish(CLEAR_STATE, { firstSelection, secondSelection });
-          animate = false;
-        } else if (!differentTilesOpened && firstOrSecondTileMatch) {
-          disabled = true;
-          tileContainer.interactive = false;
-          tileContainer.buttonMode = false;
-          tileContainer.off('pointerdown', animateTile);
-        }
-      }, 1000);
+      if (differentTilesOpened && firstOrSecondTileMatch) {
+        pubsub.publish(CLEAR_STATE, { firstSelection, secondSelection });
+        closeTile();
+      } else if (!differentTilesOpened && firstOrSecondTileMatch) {
+        tileContainer.interactive = false;
+        tileContainer.buttonMode = false;
+        tileContainer.off('pointerdown', handleTileSelection);
+      }
     }
   });
-
-  tileContainer.interactive = true;
-  tileContainer.buttonMode = true;
-  tileContainer.width = size;
-  tileContainer.height = size;
 
   const textureSprite = new Pixi.Sprite(texture);
   textureSprite.x = size / 2;
@@ -73,32 +59,50 @@ export default function tile({ texture, size, app, name, num }) {
   textureSprite.anchor.y = 0.5;
 
   const textureOverlay = new Pixi.Graphics();
-  textureOverlay.beginFill(0x57C5C6, 1);
+  textureOverlay.beginFill(0xfcb856, 1);
   textureOverlay.drawRect(0, 0, size, size);
 
   tileContainer.addChild(textureSprite);
   tileContainer.addChild(textureOverlay);
 
-  function animateTile() {
-    animate = true;
+  function handleTileSelection() {
+    tileContainer.off('pointerdown', handleTileSelection);
+    openTile();
     tileContainer.interactive = false;
     tileContainer.buttonMode = false;
     pubsub.publish(SET_STATE, { name, num });
   }
 
-  tileContainer.on('pointerdown', animateTile);
+  tileContainer.on('pointerdown', handleTileSelection);
 
-  app.ticker.add(() => {
-    if (animate && textureOverlay.height > 0) {
-      const newSize = textureOverlay.height - 10;
-      textureOverlay.height = newSize;
-    }
+  function openTile() {
+    tween({
+      from: textureOverlay.height,
+      to: 0,
+      duration: 200,
+      onUpdate(height) {
+        textureOverlay.height = height;
+      },
+    }).start();
+  }
 
-    if (!animate && textureOverlay.height < size) {
-      const newSize = textureOverlay.height + 20;
-      textureOverlay.height = newSize;
-    }
-  });
+  function closeTile() {
+    chain([
+      delay(800),
+      spring({
+        mass: 2,
+        stiffness: 2000,
+        damping: 30,
+        to: size,
+        onUpdate(height) {
+          textureOverlay.height = height;
+        },
+        onComplete() {
+          tileContainer.on('pointerdown', handleTileSelection);
+        },
+      }),
+    ]).start();
+  }
 
   return tileContainer;
 }

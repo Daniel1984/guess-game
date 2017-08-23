@@ -3,11 +3,16 @@ import { tween, spring, chain, physics } from 'popmotion';
 const Pixi = require('pixi.js');
 
 export default function intro({ startGame, app }) {
-  const tileContainer = new Pixi.Container();
   const stageWidth = app.renderer.width;
   const stageHeight = app.renderer.height;
   const stageCenterX = stageWidth / 2;
   const stageCenterY = stageHeight / 2;
+
+  const tileContainer = new Pixi.Container();
+  tileContainer.pivot.x = stageCenterX;
+  tileContainer.pivot.y = stageCenterY;
+  tileContainer.x = stageCenterX;
+  tileContainer.y = stageCenterY;
 
   const commonFonstStyles = {
     fontFamily: 'Sigmar One',
@@ -33,13 +38,13 @@ export default function intro({ startGame, app }) {
     { ...commonFonstStyles, fontSize: 26 }
   );
   ruleOne.anchor.set(0.5);
-  ruleOne.x = stageCenterX;
-  ruleOne.y = stageHeight + 50;
+  ruleOne.x = -stageWidth - (ruleOne.width / 2);
+  ruleOne.y = stageCenterY - 35;
 
   const ruleTwo = new Pixi.Text('Good luck!', { ...commonFonstStyles, fontSize: 35 });
   ruleTwo.anchor.set(0.5);
-  ruleTwo.x = stageCenterX;
-  ruleTwo.y = stageHeight + 50;
+  ruleTwo.x = stageWidth + (ruleTwo.width / 2);
+  ruleTwo.y = stageCenterY;
 
   const buttonContainer = new Pixi.Container();
   buttonContainer.width = 250;
@@ -54,7 +59,7 @@ export default function intro({ startGame, app }) {
   startGameText.x = 50;
 
   const startButtonBg = new Pixi.Graphics();
-  startButtonBg.lineStyle(4, 0x000000);
+  startButtonBg.beginFill(0xf2c24e);
   startButtonBg.drawRoundedRect(25, 0, 200, 60, 10);
   startButtonBg.endFill();
   startButtonBg.buttonMode = true;
@@ -67,12 +72,35 @@ export default function intro({ startGame, app }) {
   tileContainer.addChild(ruleTwo);
   tileContainer.addChild(buttonContainer);
 
-  buttonContainer.on('pointerdown', startGame);
+  buttonContainer.on('pointerdown', fadeOutIntroAndStartGame);
+
+  function fadeOutIntroAndStartGame() {
+    tween({
+      from: 0,
+      to: 30,
+      duration: 1200,
+      onUpdate(rotation) {
+        tileContainer.rotation = rotation;
+      },
+    }).start();
+
+    tween({
+      from: 1,
+      to: 0,
+      duration: 1200,
+      onComplete() {
+        startGame();
+      },
+      onUpdate(scale) {
+        tileContainer.scale.set(scale);
+      },
+    }).start();
+  }
 
   tween({
     to: 1,
     duration: 500,
-    onUpdate: (alpha) => {
+    onUpdate(alpha) {
       title.alpha = alpha;
     },
   }).start();
@@ -83,7 +111,7 @@ export default function intro({ startGame, app }) {
       stiffness: 2000,
       damping: 30,
       to: 1,
-      onUpdate: (scale) => {
+      onUpdate(scale) {
         title.scale.x = scale;
         title.scale.y = scale;
       },
@@ -94,31 +122,31 @@ export default function intro({ startGame, app }) {
       velocity: 300,
       spring: 300,
       friction: 0.8,
-      autoStopSpeed: 0.1,
-      onUpdate: (y) => {
+      autoStopSpeed: 0.2,
+      onUpdate(y) {
         title.y = y;
       },
     }),
     physics({
-      from: ruleOne.y,
-      to: stageCenterY - 35,
+      from: ruleOne.x,
+      to: stageCenterX,
       velocity: 300,
       spring: 300,
       friction: 0.8,
-      autoStopSpeed: 0.1,
-      onUpdate: (y) => {
-        ruleOne.y = y;
+      autoStopSpeed: 1,
+      onUpdate(x) {
+        ruleOne.x = x;
       },
     }),
     physics({
-      from: ruleTwo.y,
-      to: stageCenterY,
+      from: ruleTwo.x,
+      to: stageCenterX,
       velocity: 300,
       spring: 300,
       friction: 0.8,
-      autoStopSpeed: 0.1,
-      onUpdate: (y) => {
-        ruleTwo.y = y;
+      autoStopSpeed: 1,
+      onUpdate(x) {
+        ruleTwo.x = x;
       },
     }),
     physics({
@@ -127,8 +155,8 @@ export default function intro({ startGame, app }) {
       velocity: 300,
       spring: 300,
       friction: 0.8,
-      autoStopSpeed: 0.1,
-      onUpdate: (y) => {
+      autoStopSpeed: 0.5,
+      onUpdate(y) {
         buttonContainer.y = y;
       },
     }),
