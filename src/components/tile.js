@@ -1,7 +1,13 @@
-import { tween, spring, chain, delay } from 'popmotion';
 import pubsub from 'pubsub-js';
-import state from '../state';
-import { some } from 'lodash/fp';
+import { tween, spring, chain, delay } from 'popmotion';
+import {
+  tileAlreadyAdded,
+  addTile,
+  removeTile,
+  getAllTiles,
+  uncoverTile,
+  checkIfGameComplete,
+} from '../gameState';
 
 const Pixi = require('pixi.js');
 
@@ -16,21 +22,23 @@ export default function tile({ texture, size, name, num }) {
   tileContainer.height = size;
 
   pubsub.subscribe(CLEAR_STATE, (msg, { firstSelection, secondSelection }) => {
-    state.splice(state.indexOf(firstSelection), 1);
-    state.splice(state.indexOf(secondSelection), 1);
+    removeTile(firstSelection);
+    removeTile(secondSelection);
   });
 
   pubsub.subscribe(SET_STATE, (msg, tile) => {
-    if (!some(tile, state)) {
-      state.push(tile);
+    if (!tileAlreadyAdded(tile)) {
+      addTile(tile);
     }
 
-    if (state.length % 2 === 0) {
+    const allTiles = getAllTiles();
+
+    if (allTiles.length % 2 === 0) {
       tileContainer.interactive = false;
       tileContainer.buttonMode = false;
 
-      const firstSelection = state[state.length - 2];
-      const secondSelection = state[state.length - 1];
+      const firstSelection = allTiles[allTiles.length - 2];
+      const secondSelection = allTiles[allTiles.length - 1];
       const differentTilesOpened = firstSelection.name !== secondSelection.name;
       const fistTileMatch = firstSelection.name === name && firstSelection.num === num;
       const secondTileMatch = secondSelection.name === name && secondSelection.num === num;
@@ -46,6 +54,7 @@ export default function tile({ texture, size, name, num }) {
         tileContainer.interactive = false;
         tileContainer.buttonMode = false;
         tileContainer.off('pointerdown', handleTileSelection);
+        uncoverTile(name);
       }
     }
   });
@@ -82,6 +91,9 @@ export default function tile({ texture, size, name, num }) {
       duration: 200,
       onUpdate(height) {
         textureOverlay.height = height;
+      },
+      onComplete() {
+        checkIfGameComplete();
       },
     }).start();
   }

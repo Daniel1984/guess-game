@@ -10,7 +10,7 @@ import disco from './assets/pjohns/disco.svg';
 import driver from './assets/pjohns/driver.svg';
 import englishOutfit from './assets/pjohns/englishOutfit.svg';
 import gift from './assets/pjohns/gift.svg';
-import growth from './assets/pjohns/growth.svg';
+// import growth from './assets/pjohns/growth.svg';
 import guard from './assets/pjohns/guard.svg';
 import guestExperience from './assets/pjohns/guestExperience.svg';
 import hippy from './assets/pjohns/hippy.svg';
@@ -72,7 +72,7 @@ export default function assetManager(loader) {
     .add('driver', driver)
     .add('englishOutfit', englishOutfit)
     .add('gift', gift)
-    .add('growth', growth)
+    // .add('growth', growth)
     .add('guard', guard)
     .add('guestExperience', guestExperience)
     .add('hippy', hippy)
