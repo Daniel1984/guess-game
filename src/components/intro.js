@@ -59,7 +59,7 @@ export default function intro({ startGame, app }) {
   startGameText.x = 50;
 
   const startButtonBg = new Pixi.Graphics();
-  startButtonBg.beginFill(0xf2c24e);
+  startButtonBg.beginFill(0xff4500);
   startButtonBg.drawRoundedRect(25, 0, 200, 60, 10);
   startButtonBg.endFill();
   startButtonBg.buttonMode = true;
