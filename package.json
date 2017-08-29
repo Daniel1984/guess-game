@@ -13,6 +13,7 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
+    "firebase": "^4.3.0",
     "lodash": "^4.17.4",
     "pixi.js": "^4.5.4",
     "popmotion": "^7.6.2",

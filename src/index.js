@@ -3,6 +3,7 @@ import { shuffle, flow } from 'lodash/fp';
 import assetManager from './assetsManager';
 import tile from './components/tile';
 import intro from './components/intro';
+import { initDb } from './firebase';
 import './index.scss';
 
 const Pixi = require('pixi.js');
@@ -36,6 +37,7 @@ window.WebFontConfig = {
 })();
 
 function initGame() {
+  initDb();
   const app = new Pixi.Application(STAGE_WIDTH, STAGE_HEIGHT, { backgroundColor: 0xff7f00 });
   document.querySelector('.hostmaker-guess').appendChild(app.view);
 
