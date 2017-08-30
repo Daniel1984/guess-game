@@ -21,6 +21,11 @@ export function initDb() {
   });
 }
 
-export function saveScore({ score, name, time }) {
-  db.ref(`users/${firebase.auth().currentUser.uid}`).set({ name, score, time });
+export function saveScore({ score, name }) {
+  return new Promise((resolve) => {
+    const userRef = db.ref(`users/${firebase.auth().currentUser.uid}`);
+
+    userRef.set({ name, score });
+    userRef.on('value', snapshot => resolve(snapshot));
+  });
 }

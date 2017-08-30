@@ -7,6 +7,7 @@ import {
   getAllTiles,
   uncoverTile,
   checkIfGameComplete,
+  incrementScore,
 } from '../gameState';
 
 const Pixi = require('pixi.js');
@@ -80,6 +81,7 @@ export default function tile({ texture, size, name, num }) {
     tileContainer.interactive = false;
     tileContainer.buttonMode = false;
     pubsub.publish(SET_STATE, { name, num });
+    incrementScore();
   }
 
   tileContainer.on('pointerdown', handleTileSelection);
