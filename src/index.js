@@ -4,7 +4,7 @@ import assetManager from './assetsManager';
 import tile from './components/tile';
 import intro from './components/intro';
 import { initDb } from './firebase';
-import { initGameOverModal, openGameOverModal } from './components/gameOverModal';
+import { initGameOverModal } from './components/gameOverModal';
 import './index.scss';
 
 const Pixi = require('pixi.js');
@@ -40,7 +40,6 @@ window.WebFontConfig = {
 function initGame() {
   initDb();
   initGameOverModal({ modalClassName: 'modal-gameover', modalBackdropClassName: 'backdrop-gameover' });
-  openGameOverModal();
   const app = new Pixi.Application(STAGE_WIDTH, STAGE_HEIGHT, { backgroundColor: 0xff7f00 });
   document.querySelector('.hostmaker-guess').appendChild(app.view);
 
@@ -86,6 +85,7 @@ function initGame() {
 
       tileRows.forEach((row, i) => {
         row.forEach(({ name, num }, j) => {
+          console.log(resources[name].texture)
           const tileWithTexture = tile({
             texture: resources[name].texture,
             size: TILE_SIZE,

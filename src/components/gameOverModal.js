@@ -1,6 +1,7 @@
 import pubsub from 'pubsub-js';
 import { css, spring } from 'popmotion';
-import { getScore } from '../gameState';
+import { saveScore } from '../firebase';
+import { getScore, resetScore } from '../gameState';
 
 let modalEl;
 let modalBackdropEl;
@@ -22,7 +23,16 @@ export function initGameOverModal({ modalClassName, modalBackdropClassName }) {
   cancelBtn.addEventListener('click', restartGame);
 
   function handleSubmit() {
-    console.log('submitting');
+    const name = window.prompt('Please enter your nickname'); // eslint-disable-line
+
+    if (!name) {
+      handleSubmit();
+      return;
+    }
+
+    saveScore({ name, score: getScore() }).then(() => {
+      resetScore();
+    });
   }
 
   function restartGame() {

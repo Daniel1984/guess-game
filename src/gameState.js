@@ -1,5 +1,5 @@
 import { some } from 'lodash/fp';
-import { saveScore } from './firebase';
+import { openGameOverModal } from './components/gameOverModal';
 
 const ALL_TILES_COUNT = 36;
 
@@ -13,11 +13,7 @@ export function uncoverTile(name) {
 
 export function checkIfGameComplete() {
   if (uncoveredTiles.length === ALL_TILES_COUNT) {
-    const name = window.prompt('Please enter your nickname'); // eslint-disable-line
-    saveScore({ name, score }).then((res) => {
-      resetScore();
-      console.log('score was saved ', res);
-    });
+    openGameOverModal();
   }
 }
 
@@ -45,6 +41,6 @@ export function getScore() {
   return score;
 }
 
-function resetScore() {
+export function resetScore() {
   score = 0;
 }
