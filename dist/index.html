@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <base href="/">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Hostmaker Guess</title>
+  <link href="/index.css" rel="stylesheet"></head>
+  <body>
+    <div class="hostmaker-guess"></div>
+    <div class="hostmakr-background">
+      <div class="hostmakr-background_left"></div>
+      <div class="hostmakr-background_right"></div>
+    </div>
+
+    <div class="modal modal-gameover">
+      <div class="modal_content">
+        <div class="modal_logo-container">
+          <div class="modal_logo"></div>
+        </div>
+
+        <div class="modal_message">
+          You have successfully finished the game!
+        </div>
+        <div class="modal_progress">
+          <div class="modal_score"></div>
+        </div>
+        <div class="modal_footer">
+          <button class="modal_button modal_button--submit">Submit</button>
+          <button class="modal_button modal_button--retry">Retry</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal modal-topscore">
+      <div class="modal_content">
+        <div class="modal_logo-container">
+          <div class="modal_logo"></div>
+        </div>
+
+        <div class="modal_message">
+          Top players!
+        </div>
+
+        <div class="modal_score-results">
+          <div class="modal_result-row modal_score-results-header">
+            <div class="modal_result-label">Place:</div>
+            <div class="modal_result-label">Name:</div>
+            <div class="modal_result-label">Moves:</div>
+          </div>
+          <div class="modal_score-results-body"></div>
+        </div>
+
+        <div class="modal_footer">
+          <button class="modal_button modal_button--close">Close</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal_backdrop"></div>
+  <script type="text/javascript" src="/index.js"></script></body>
+</html>

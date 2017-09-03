@@ -60,19 +60,11 @@ export default function tile({ texture, size, name, num }) {
     }
   });
 
-  const textureSprite = new Pixi.Sprite(texture);
-  textureSprite.x = size / 2;
-  textureSprite.y = size / 2;
-  textureSprite.width = size;
-  textureSprite.height = size;
-  textureSprite.anchor.x = 0.5;
-  textureSprite.anchor.y = 0.5;
-
   const textureOverlay = new Pixi.Graphics();
   textureOverlay.beginFill(0xfcb856, 1);
   textureOverlay.drawRect(0, 0, size, size);
 
-  tileContainer.addChild(textureSprite);
+  tileContainer.addChild(texture);
   tileContainer.addChild(textureOverlay);
 
   function handleTileSelection() {

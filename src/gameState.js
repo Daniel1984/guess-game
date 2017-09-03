@@ -3,12 +3,14 @@ import { openGameOverModal } from './components/gameOverModal';
 
 const ALL_TILES_COUNT = 36;
 
-const tiles = [];
-const uncoveredTiles = [];
+let tiles = [];
+let uncoveredTiles = [];
 let score = 0;
 
 export function uncoverTile(name) {
-  uncoveredTiles.push(name);
+  if (uncoveredTiles.filter(title => title === name).length < 2) {
+    uncoveredTiles.push(name);
+  }
 }
 
 export function checkIfGameComplete() {
@@ -43,4 +45,6 @@ export function getScore() {
 
 export function resetScore() {
   score = 0;
+  uncoveredTiles = [];
+  tiles = [];
 }

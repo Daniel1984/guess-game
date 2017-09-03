@@ -154,6 +154,41 @@ canvas {
   background-color: $green;
 }
 
-.modal_button--retry {
+.modal_button--retry,
+.modal_button--close {
   background-color: orangered;
+}
+
+.modal_score-results {
+  height: 250px;
+  background-color: whitesmoke;
+}
+
+.modal_score-results-header {
+  background-color: $green;
+  padding: 5px 10px;
+  font-family: 'Sigmar One';
+}
+
+.modal_score-results-body {
+  height: 214px;
+  overflow-y: scroll;
+}
+
+.modal_result-row {
+  display: flex;
+}
+
+.modal_result-row--striped {
+  padding: 5px 10px;
+
+  &:nth-child(2n + 1)  {
+    background-color: white;
+  }
+}
+
+.modal_result-label,
+.modal_result-row-item {
+  display: flex;
+  flex: 1;
 }

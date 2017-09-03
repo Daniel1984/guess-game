@@ -1,4 +1,5 @@
 import { tween, spring, chain, physics } from 'popmotion';
+import { openTopScoreModal } from './topScoreModal';
 
 const Pixi = require('pixi.js');
 
@@ -8,11 +9,11 @@ export default function intro({ startGame, app }) {
   const stageCenterX = stageWidth / 2;
   const stageCenterY = stageHeight / 2;
 
-  const tileContainer = new Pixi.Container();
-  tileContainer.pivot.x = stageCenterX;
-  tileContainer.pivot.y = stageCenterY;
-  tileContainer.x = stageCenterX;
-  tileContainer.y = stageCenterY;
+  const introContainer = new Pixi.Container();
+  introContainer.pivot.x = stageCenterX;
+  introContainer.pivot.y = stageCenterY;
+  introContainer.x = stageCenterX;
+  introContainer.y = stageCenterY;
 
   const commonFonstStyles = {
     fontFamily: 'Sigmar One',
@@ -46,33 +47,54 @@ export default function intro({ startGame, app }) {
   ruleTwo.x = stageWidth + (ruleTwo.width / 2);
   ruleTwo.y = stageCenterY;
 
-  const buttonContainer = new Pixi.Container();
-  buttonContainer.width = 250;
-  buttonContainer.height = 60;
-  buttonContainer.x = stageCenterX - 125;
-  buttonContainer.y = stageHeight + 50;
-  buttonContainer.buttonMode = true;
-  buttonContainer.interactive = true;
+  const startButtonContainer = new Pixi.Container();
+  startButtonContainer.width = 350;
+  startButtonContainer.height = 60;
+  startButtonContainer.x = stageCenterX - 160;
+  startButtonContainer.y = stageHeight + 50;
+  startButtonContainer.buttonMode = true;
+  startButtonContainer.interactive = true;
 
-  const startGameText = new Pixi.Text('START', { ...commonFonstStyles, fontSize: 35 });
-  ruleTwo.anchor.set(0.5);
-  startGameText.x = 50;
+  const startGameText = new Pixi.Text('START', { ...commonFonstStyles, fontSize: 35, fill: 0xff4500 });
+  startGameText.x = 100;
 
   const startButtonBg = new Pixi.Graphics();
-  startButtonBg.beginFill(0xff4500);
-  startButtonBg.drawRoundedRect(25, 0, 200, 60, 10);
+  startButtonBg.beginFill(0x57c5c6);
+  startButtonBg.drawRoundedRect(25, 0, 280, 60, 10);
   startButtonBg.endFill();
   startButtonBg.buttonMode = true;
   startButtonBg.interactive = true;
 
-  buttonContainer.addChild(startButtonBg);
-  buttonContainer.addChild(startGameText);
-  tileContainer.addChild(title);
-  tileContainer.addChild(ruleOne);
-  tileContainer.addChild(ruleTwo);
-  tileContainer.addChild(buttonContainer);
+  const topScoreBtnContainer = new Pixi.Container();
+  topScoreBtnContainer.width = 350;
+  topScoreBtnContainer.height = 60;
+  topScoreBtnContainer.x = stageCenterX - 160;
+  topScoreBtnContainer.y = stageHeight + 50;
+  topScoreBtnContainer.buttonMode = true;
+  topScoreBtnContainer.interactive = true;
 
-  buttonContainer.on('pointerdown', fadeOutIntroAndStartGame);
+  const topScoreText = new Pixi.Text('TOP SCORE', { ...commonFonstStyles, fontSize: 35 });
+  topScoreText.x = 50;
+
+  const topScoreButtonBg = new Pixi.Graphics();
+  topScoreButtonBg.beginFill(0xff4500);
+  topScoreButtonBg.drawRoundedRect(25, 0, 280, 60, 10);
+  topScoreButtonBg.endFill();
+  topScoreButtonBg.buttonMode = true;
+  topScoreButtonBg.interactive = true;
+
+  startButtonContainer.addChild(startButtonBg);
+  startButtonContainer.addChild(startGameText);
+  topScoreBtnContainer.addChild(topScoreButtonBg);
+  topScoreBtnContainer.addChild(topScoreText);
+  introContainer.addChild(title);
+  introContainer.addChild(ruleOne);
+  introContainer.addChild(ruleTwo);
+  introContainer.addChild(startButtonContainer);
+  introContainer.addChild(topScoreBtnContainer);
+
+  startButtonContainer.on('pointerdown', fadeOutIntroAndStartGame);
+  topScoreBtnContainer.on('pointerdown', openTopScoreModal);
 
   function fadeOutIntroAndStartGame() {
     tween({
@@ -80,7 +102,7 @@ export default function intro({ startGame, app }) {
       to: 30,
       duration: 1200,
       onUpdate(rotation) {
-        tileContainer.rotation = rotation;
+        introContainer.rotation = rotation;
       },
     }).start();
 
@@ -92,7 +114,7 @@ export default function intro({ startGame, app }) {
         startGame();
       },
       onUpdate(scale) {
-        tileContainer.scale.set(scale);
+        introContainer.scale.set(scale);
       },
     }).start();
   }
@@ -150,17 +172,28 @@ export default function intro({ startGame, app }) {
       },
     }),
     physics({
-      from: buttonContainer.y,
+      from: topScoreBtnContainer.y,
+      to: stageHeight - 200,
+      velocity: 300,
+      spring: 300,
+      friction: 0.8,
+      autoStopSpeed: 0.5,
+      onUpdate(y) {
+        topScoreBtnContainer.y = y;
+      },
+    }),
+    physics({
+      from: startButtonContainer.y,
       to: stageHeight - 100,
       velocity: 300,
       spring: 300,
       friction: 0.8,
       autoStopSpeed: 0.5,
       onUpdate(y) {
-        buttonContainer.y = y;
+        startButtonContainer.y = y;
       },
     }),
   ]).start();
 
-  return tileContainer;
+  return introContainer;
 }

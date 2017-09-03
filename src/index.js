@@ -1,10 +1,14 @@
 import { physics, spring } from 'popmotion';
 import { shuffle, flow } from 'lodash/fp';
-import assetManager from './assetsManager';
+import pubsub from 'pubsub-js';
 import tile from './components/tile';
 import intro from './components/intro';
+import retryGame from './components/retryGame';
 import { initDb } from './firebase';
 import { initGameOverModal } from './components/gameOverModal';
+import { initTopScoreModal } from './components/topScoreModal';
+import spritesheetOneJson from './assets/spritesheetOne.json';
+import spritesheetOnePng from './assets/spritesheetOne.png';
 import './index.scss';
 
 const Pixi = require('pixi.js');
@@ -38,8 +42,14 @@ window.WebFontConfig = {
 })();
 
 function initGame() {
+  pubsub.subscribe('gameOverModal:restart', startGame);
+  pubsub.subscribe('gameOverModal:show:retry:scene', showRetryGameScene);
+
   initDb();
-  initGameOverModal({ modalClassName: 'modal-gameover', modalBackdropClassName: 'backdrop-gameover' });
+
+  initGameOverModal({ modalClassName: 'modal-gameover' });
+  initTopScoreModal({ modalClassName: 'modal-topscore' });
+
   const app = new Pixi.Application(STAGE_WIDTH, STAGE_HEIGHT, { backgroundColor: 0xff7f00 });
   document.querySelector('.hostmaker-guess').appendChild(app.view);
 
@@ -62,7 +72,19 @@ function initGame() {
     return tiles.length ? splitTileListIntoRows(tiles, rowsWithTiles) : rowsWithTiles;
   }
 
-  assetManager(Pixi.loader).load((loader, resources) => {
+  function showRetryGameScene() {
+    app.stage.removeChildren();
+    app.stage.addChild(retryGame({ app, startGame }));
+  }
+
+  Pixi.loader
+    .add('spritesheetOne', spritesheetOnePng)
+    .load((loader, resources) => {
+      const sheet = new Pixi.Spritesheet(resources.spritesheetOne.texture.baseTexture, spritesheetOneJson);
+      sheet.parse(initStage);
+    });
+
+  function initStage() {
     spring({
       mass: 2,
       stiffness: 1000,
@@ -75,45 +97,46 @@ function initGame() {
         app.stage.addChild(intro({ app, startGame }));
       },
     }).start();
+  }
 
-    function startGame() {
-      const tileRows = flow(
-        getPairedTiles,
-        shuffle,
-        splitTileListIntoRows
-      )(Object.keys(resources));
+  function startGame() {
+    app.stage.removeChildren();
 
-      tileRows.forEach((row, i) => {
-        row.forEach(({ name, num }, j) => {
-          console.log(resources[name].texture)
-          const tileWithTexture = tile({
-            texture: resources[name].texture,
-            size: TILE_SIZE,
-            num,
-            name,
-            app,
-          });
+    const tileRows = flow(
+      getPairedTiles,
+      shuffle,
+      splitTileListIntoRows
+    )(Object.keys(spritesheetOneJson.frames));
 
-          const getPosition = count => ((count % GRID_WIDTH) * TILE_SIZE) + (TILE_GAP * count);
-
-          tileWithTexture.x = getPosition(j);
-          tileWithTexture.y = getPosition(i);
-          tileWithTexture.height = 0;
-
-          app.stage.addChild(tileWithTexture);
-
-          physics({
-            from: 0,
-            to: TILE_SIZE,
-            velocity: 200,
-            spring: 400,
-            friction: 0.8,
-            onUpdate(height) {
-              tileWithTexture.height = height;
-            },
-          }).start();
+    tileRows.forEach((row, i) => {
+      row.forEach(({ name, num }, j) => {
+        const tileWithTexture = tile({
+          texture: Pixi.Sprite.fromFrame(name),
+          size: TILE_SIZE,
+          num,
+          name,
+          app,
         });
+
+        const getPosition = count => ((count % GRID_WIDTH) * TILE_SIZE) + (TILE_GAP * count);
+
+        tileWithTexture.x = getPosition(j);
+        tileWithTexture.y = getPosition(i);
+        tileWithTexture.height = 0;
+
+        app.stage.addChild(tileWithTexture);
+
+        physics({
+          from: 0,
+          to: TILE_SIZE,
+          velocity: 200,
+          spring: 400,
+          friction: 0.8,
+          onUpdate(height) {
+            tileWithTexture.height = height;
+          },
+        }).start();
       });
-    }
-  });
+    });
+  }
 }
