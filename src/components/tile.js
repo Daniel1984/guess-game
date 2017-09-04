@@ -12,7 +12,7 @@ import {
 
 const Pixi = require('pixi.js');
 
-const SET_STATE = 'tile:change';
+const ACTIVATE_TILE = 'tile:change';
 const CLEAR_STATE = 'clear:state';
 
 export default function tile({ texture, size, name, num }) {
@@ -27,7 +27,7 @@ export default function tile({ texture, size, name, num }) {
     removeTile(secondSelection);
   });
 
-  pubsub.subscribe(SET_STATE, (msg, tile) => {
+  pubsub.subscribe(ACTIVATE_TILE, (msg, tile) => {
     if (!tileAlreadyAdded(tile)) {
       addTile(tile);
     }
@@ -72,8 +72,7 @@ export default function tile({ texture, size, name, num }) {
     openTile();
     tileContainer.interactive = false;
     tileContainer.buttonMode = false;
-    pubsub.publish(SET_STATE, { name, num });
-    incrementScore();
+    pubsub.publish(ACTIVATE_TILE, { name, num });
   }
 
   tileContainer.on('pointerdown', handleTileSelection);
@@ -87,6 +86,7 @@ export default function tile({ texture, size, name, num }) {
         textureOverlay.height = height;
       },
       onComplete() {
+        incrementScore();
         checkIfGameComplete();
       },
     }).start();

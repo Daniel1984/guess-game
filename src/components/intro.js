@@ -35,12 +35,18 @@ export default function intro({ startGame, app }) {
   title.y = stageCenterY;
 
   const ruleOne = new Pixi.Text(
-    'Complete the game as fast as you can!',
-    { ...commonFonstStyles, fontSize: 26 }
+    'Complete the game with as few moves as possible!',
+    {
+      ...commonFonstStyles,
+      fontSize: 26,
+      align: 'center',
+      wordWrap: true,
+      wordWrapWidth: stageWidth - 40,
+    }
   );
   ruleOne.anchor.set(0.5);
   ruleOne.x = -stageWidth - (ruleOne.width / 2);
-  ruleOne.y = stageCenterY - 35;
+  ruleOne.y = stageCenterY - 70;
 
   const ruleTwo = new Pixi.Text('Good luck!', { ...commonFonstStyles, fontSize: 35 });
   ruleTwo.anchor.set(0.5);
@@ -100,7 +106,7 @@ export default function intro({ startGame, app }) {
     tween({
       from: 0,
       to: 30,
-      duration: 1200,
+      duration: 1000,
       onUpdate(rotation) {
         introContainer.rotation = rotation;
       },
@@ -109,7 +115,7 @@ export default function intro({ startGame, app }) {
     tween({
       from: 1,
       to: 0,
-      duration: 1200,
+      duration: 1000,
       onComplete() {
         startGame();
       },
@@ -118,14 +124,6 @@ export default function intro({ startGame, app }) {
       },
     }).start();
   }
-
-  tween({
-    to: 1,
-    duration: 500,
-    onUpdate(alpha) {
-      title.alpha = alpha;
-    },
-  }).start();
 
   chain([
     spring({
@@ -144,11 +142,15 @@ export default function intro({ startGame, app }) {
       velocity: 300,
       spring: 300,
       friction: 0.8,
-      autoStopSpeed: 0.2,
+      autoStopSpeed: 0.5,
       onUpdate(y) {
         title.y = y;
       },
+      onComplete: animateMsgAndCta,
     }),
+  ]).start();
+
+  function animateMsgAndCta() {
     physics({
       from: ruleOne.x,
       to: stageCenterX,
@@ -159,7 +161,8 @@ export default function intro({ startGame, app }) {
       onUpdate(x) {
         ruleOne.x = x;
       },
-    }),
+    }).start();
+
     physics({
       from: ruleTwo.x,
       to: stageCenterX,
@@ -170,30 +173,32 @@ export default function intro({ startGame, app }) {
       onUpdate(x) {
         ruleTwo.x = x;
       },
-    }),
+    }).start();
+
     physics({
       from: topScoreBtnContainer.y,
       to: stageHeight - 200,
       velocity: 300,
       spring: 300,
       friction: 0.8,
-      autoStopSpeed: 0.5,
+      autoStopSpeed: 1,
       onUpdate(y) {
         topScoreBtnContainer.y = y;
       },
-    }),
+    }).start();
+
     physics({
       from: startButtonContainer.y,
       to: stageHeight - 100,
       velocity: 300,
       spring: 300,
       friction: 0.8,
-      autoStopSpeed: 0.5,
+      autoStopSpeed: 1,
       onUpdate(y) {
         startButtonContainer.y = y;
       },
-    }),
-  ]).start();
+    }).start();
+  }
 
   return introContainer;
 }
