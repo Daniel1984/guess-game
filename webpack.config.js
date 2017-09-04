@@ -19,7 +19,7 @@ module.exports = {
     library: 'hostmakerSupport',
     libraryTarget: 'umd',
     libraryExport: 'default',
-    filename: 'index.js',
+    filename: IS_BUILD ? '[name].[hash].js' : '[name].bundle.js',
     path: DESTINATION_DIR,
     publicPath: '/',
   },
@@ -38,7 +38,7 @@ module.exports = {
             {
               loader: 'css-loader',
               options: {
-                localIdentName: 'index',
+                localIdentName: '[name]-[local]__[hash:base64:5]',
                 minimize: IS_BUILD,
                 sourceMap: true,
               },
@@ -70,7 +70,7 @@ module.exports = {
       env: NODE_ENV,
     }),
     new ExtractTextPlugin({
-      filename: 'index.css',
+      filename: IS_BUILD ? '[name].[contenthash].css' : '[name].bundle.css',
       allChunks: true,
     }),
   ]
