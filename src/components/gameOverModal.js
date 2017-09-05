@@ -1,7 +1,7 @@
 import pubsub from 'pubsub-js';
 import { css, spring } from 'popmotion';
 import { saveScore } from '../firebase';
-import { getScore, resetScore } from '../gameState';
+import { getMoves, resetMoves } from '../gameState';
 
 let modalEl;
 let modalBackdropEl;
@@ -34,22 +34,22 @@ export function initGameOverModal({ modalClassName }) {
       return;
     }
 
-    saveScore({ name, score: getScore() }).then(() => {
+    saveScore({ name, score: getMoves() }).then(() => {
       closeModal();
-      resetScore();
+      resetMoves();
       pubsub.publish('gameOverModal:show:retry:scene');
     });
   }
 
   function restartGame() {
     closeModal();
-    resetScore();
+    resetMoves();
     startGameOver();
   }
 }
 
 export function openGameOverModal() {
-  modalScoreEl.textContent = `Moves: ${getScore()}`;
+  modalScoreEl.textContent = `Moves: ${getMoves()}`;
 
   tweenedModalBackdrop.set('x', 0);
 

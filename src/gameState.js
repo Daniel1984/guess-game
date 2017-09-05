@@ -5,7 +5,7 @@ const ALL_TILES_COUNT = 36;
 
 let tiles = [];
 let uncoveredTiles = [];
-let score = 0;
+let moves = 0;
 
 export function uncoverTile(name) {
   if (uncoveredTiles.filter(title => title === name).length < 2) {
@@ -35,16 +35,16 @@ export function getAllTiles() {
   return tiles;
 }
 
-export function incrementScore() {
-  score += 1;
+export function incrementMoves() {
+  moves += 1;
 }
 
-export function getScore() {
-  return score;
+export function getMoves() {
+  return moves / 2;
 }
 
-export function resetScore() {
-  score = 0;
+export function resetMoves() {
+  moves = 0;
   uncoveredTiles = [];
   tiles = [];
 }

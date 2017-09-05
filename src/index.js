@@ -132,6 +132,7 @@ function initGame() {
           velocity: 200,
           spring: 400,
           friction: 0.8,
+          autoStopSpeed: 1,
           onUpdate(height) {
             tileWithTexture.height = height;
           },

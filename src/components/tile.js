@@ -7,7 +7,7 @@ import {
   getAllTiles,
   uncoverTile,
   checkIfGameComplete,
-  incrementScore,
+  incrementMoves,
 } from '../gameState';
 
 const Pixi = require('pixi.js');
@@ -86,7 +86,7 @@ export default function tile({ texture, size, name, num }) {
         textureOverlay.height = height;
       },
       onComplete() {
-        incrementScore();
+        incrementMoves();
         checkIfGameComplete();
       },
     }).start();
