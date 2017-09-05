@@ -16,8 +16,8 @@ export function initGameOverModal({ modalClassName }) {
   tweenedModalBackdrop = css(modalBackdropEl);
   tweenedModal = css(modalEl);
 
-  const submitBtn = modalEl.querySelector('.modal_button--submit');
-  const cancelBtn = modalEl.querySelector('.modal_button--retry');
+  const submitBtn = modalEl.querySelector('.mbs');
+  const cancelBtn = modalEl.querySelector('.mbr');
 
   submitBtn.addEventListener('click', handleSubmit);
   cancelBtn.addEventListener('click', restartGame);

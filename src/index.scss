@@ -150,11 +150,11 @@ canvas {
   border: 1px solid #000;
 }
 
-.modal_button--submit {
+.mbs {
   background-color: $green;
 }
 
-.modal_button--retry,
+.mbr,
 .modal_button--close {
   background-color: orangered;
 }
